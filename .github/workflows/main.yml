@@ -8,24 +8,20 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: 'Checkout Github Action' 
+        uses: actions/checkout@master
+        
+      - name: executando comandos ssh remotos usando chave ssh
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /var/opt/commands
+            ./SitesUpdate.sh
 
-    - name: Install sshpass
-      run: |
-        env
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -p 6969 ${{ secrets.HOST }} >> ~/.ssh/known_hosts
-        sudo apt-get install sshpass
-
-    - name: Deploy to server
-      run: |
-        sshpass -p '${{ secrets.SSH_PRIVATE_KEY }}' ssh -v -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} -p 6969 <<'ENDSSH'
-        cd ${{ secrets.WORK_DIR }}
-        rm -rf ./Sites
-        git clone https://github.com/christiandonf/Sites.git
-        ENDSSH
