@@ -26,5 +26,6 @@ jobs:
       run: |
         sshpass -p '${{ secrets.SSH_PRIVATE_KEY }}' ssh -v -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} -p 6969 <<'ENDSSH'
         cd ${{ secrets.WORK_DIR }}
-        git pull
+        rm -rf ./Sites
+        git clone https://github.com/christiandonf/Sites.git
         ENDSSH
